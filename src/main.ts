@@ -1,9 +1,23 @@
 import { NestFactory } from "@nestjs/core";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AppModule } from "./v1/app.module";
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
-    app.setGlobalPrefix("/api/v1");
-    await app.listen(3000);
+    const version = "/api/v1";
+
+    const options = new DocumentBuilder()
+        .setTitle("EasyMove Documentation")
+        .setDescription("Documentation de l'API EasyMove v1")
+        .setVersion("1.0.0")
+        .addTag("Users")
+        .addServer(version)
+        .build();
+    const document = SwaggerModule.createDocument(app, options);
+    SwaggerModule.setup(`${version}/documentation`, app, document);
+
+    app.setGlobalPrefix(version);
+
+    await app.listen(process.env.API_PORT ?? 3000);
 }
 bootstrap();

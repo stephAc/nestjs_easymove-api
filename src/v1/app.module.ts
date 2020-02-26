@@ -1,7 +1,14 @@
 import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
 import { UserModule } from "./user/user.module";
 
+const envFilePath = process.env.NODE_ENV === "test" ? ".env.test" : ".env";
 @Module({
-    imports: [UserModule],
+    imports: [
+        ConfigModule.forRoot({ envFilePath }),
+        TypeOrmModule.forRoot(),
+        UserModule,
+    ],
 })
 export class AppModule {}
