@@ -4,12 +4,16 @@ import {
     HttpException,
     HttpStatus,
     Param,
+    UseGuards,
 } from "@nestjs/common";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import { UserService } from "./user.service";
+import { AuthGuard } from "@nestjs/passport";
 
 @ApiTags("Users")
+@ApiBearerAuth()
 @Controller("users")
+@UseGuards(AuthGuard("jwt"))
 export class UserController {
     constructor(private readonly userService: UserService) {}
 
@@ -25,9 +29,8 @@ export class UserController {
         status: HttpStatus.NOT_FOUND,
         description: "L'utilisateur n'existe pas.",
     })
-    public async show(@Param("id") id: number) {
+    public async show(@Param("id") id: string) {
         const user = await this.userService.findOneById(id);
-
         if (!user) {
             throw new HttpException(
                 "L'utilisateur n'existe pas.",
