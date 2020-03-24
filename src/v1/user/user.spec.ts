@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { Repository } from "typeorm";
 import { AppModule } from "../app.module";
 import { UserController } from "./user.controller";
-import { User } from "./user.entity";
+import User from "./user.entity";
 import { UserService } from "./user.service";
 
 describe("User", () => {
@@ -19,6 +19,8 @@ describe("User", () => {
         service = moduleRef.get<UserService>(UserService);
         controller = moduleRef.get<UserController>(UserController);
         repository = moduleRef.get("UserRepository");
+
+        await repository.query("DELETE from users;");
     });
 
     describe("index", () => {
@@ -47,15 +49,13 @@ describe("User", () => {
     });
 });
 
-const users: User[] = [
+const users: Omit<User, "createdAt" | "updatedAt" | "historyList">[] = [
     {
         id: "1",
         email: "aa@aa.com",
         username: "test",
         password: "password",
         role: 10,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     },
     {
         id: "2",
@@ -63,7 +63,5 @@ const users: User[] = [
         username: "test2",
         password: "password",
         role: 10,
-        createdAt: new Date(),
-        updatedAt: new Date(),
     },
 ];

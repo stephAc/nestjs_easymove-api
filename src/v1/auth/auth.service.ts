@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import * as bcrypt from "bcrypt";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-
+import * as bcrypt from "bcrypt";
 import { UserService } from "../user/user.service";
-import { LoginDto } from "./dto/login.dto";
+import { LoginRequestDTO } from "./dto/login-request.dto";
+import { LoginResponseDTO } from "./dto/login-response.dto";
 
 @Injectable()
 export class AuthService {
@@ -12,14 +12,18 @@ export class AuthService {
         private readonly jwtService: JwtService,
     ) {}
 
-    async validateUser({ email, password }: LoginDto): Promise<string> {
+    async validateUser({
+        email,
+        password,
+    }: LoginRequestDTO): Promise<LoginResponseDTO> {
         const user = await this.userService.findOneByEmail(email);
 
         if (user && (await bcrypt.compare(password, user.password))) {
             const { id, email } = user;
-            return await this.jwtService.sign({ id, email });
+            const token = this.jwtService.sign({ id, email });
+            return { user, token };
         }
 
-        throw new UnauthorizedException("Identifiants incorrects");
+        throw new ForbiddenException("Identifiants incorrects");
     }
 }

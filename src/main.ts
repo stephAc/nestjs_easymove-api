@@ -11,7 +11,6 @@ async function bootstrap() {
         .setTitle("EasyMove Documentation")
         .setDescription("Documentation de l'API EasyMove v1")
         .setVersion("1.0.0")
-        .addTag("Users")
         .addServer(version)
         .addBearerAuth()
         .build();
@@ -19,7 +18,7 @@ async function bootstrap() {
     SwaggerModule.setup(`${version}/documentation`, app, document);
 
     app.setGlobalPrefix(version);
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
     await app.listen(process.env.API_PORT ?? 3000);
 }

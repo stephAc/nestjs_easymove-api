@@ -6,16 +6,24 @@ import {
     Param,
     UseGuards,
 } from "@nestjs/common";
-import { ApiOperation, ApiResponse, ApiTags, ApiBearerAuth } from "@nestjs/swagger";
-import { UserService } from "./user.service";
 import { AuthGuard } from "@nestjs/passport";
+import {
+    ApiBearerAuth,
+    ApiExtraModels,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from "@nestjs/swagger";
+import User from "./user.entity";
+import { UserService } from "./user.service";
 
 @ApiTags("Users")
+@ApiExtraModels(User)
 @ApiBearerAuth()
 @Controller("users")
 @UseGuards(AuthGuard("jwt"))
 export class UserController {
-    constructor(private readonly userService: UserService) {}
+    public constructor(private readonly userService: UserService) {}
 
     @Get()
     @ApiOperation({ summary: "Liste des utilisateurs." })

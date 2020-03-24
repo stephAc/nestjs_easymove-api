@@ -6,15 +6,22 @@ import {
     HttpStatus,
     Post,
 } from "@nestjs/common";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+    ApiExtraModels,
+    ApiOperation,
+    ApiResponse,
+    ApiTags,
+} from "@nestjs/swagger";
 import * as bcrypt from "bcrypt";
-import { CreateUserDto } from "../user/dto/create_user.dto";
-import { User } from "../user/user.entity";
+import { CreateUserDTO } from "../user/dto/create-user.dto";
+import User from "../user/user.entity";
 import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
-import { LoginDto } from "./dto/login.dto";
+import { LoginRequestDTO } from "./dto/login-request.dto";
+import { LoginResponseDTO } from "./dto/login-response.dto";
 
 @ApiTags("Authentification")
+@ApiExtraModels(LoginResponseDTO)
 @Controller("auth")
 export class AuthController {
     constructor(
@@ -24,27 +31,19 @@ export class AuthController {
 
     @Post("login")
     @HttpCode(200)
-    @ApiOperation({ summary: "Connecter un utilisateur, retourne son ID" })
+    @ApiOperation({ summary: "Connecte un utilisateur" })
     @ApiResponse({
-        status: HttpStatus.UNAUTHORIZED,
-        description: "Identifiants incorrects",
+        status: HttpStatus.FORBIDDEN,
+        description: "Identifiants incorrects.",
     })
     @ApiResponse({
         status: HttpStatus.OK,
-        description: "Utilisateur connecté",
-        schema: {
-            type: "object",
-            properties: {
-                token: {
-                    type: "string",
-                    example:
-                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYyMjEwN2QxLWU5OTQtNDI4ZC05MWQ4LTIwYzE3MjM4NjVlYiIsImVtYWlsIjoidGVzdEB0ZXN0LmNvbSIsImlhdCI6MTU4MzUwNjg5OSwiZXhwIjoxNTgzNTUwMDk5fQ.ghsxkWklzCKjzIHVG1Etung3yHfw6TRb_jng8UBhz3c",
-                },
-            },
-        },
+        description: "Utilisateur connecté.",
+        type: () => LoginResponseDTO,
     })
-    async login(@Body() loginDto: LoginDto): Promise<{ token: String }> {
-        return { token: await this.authService.validateUser(loginDto) };
+    async login(@Body() loginDto: LoginRequestDTO): Promise<LoginResponseDTO> {
+        // TODO: remove password via serialization
+        return await this.authService.validateUser(loginDto);
     }
 
     @Post("register")
@@ -57,11 +56,12 @@ export class AuthController {
         status: HttpStatus.CREATED,
         description: "L'utilisateur a été ajouté",
     })
-    // Using CreateUserDto will automatically launch validation pipeline
-    async register(@Body() createUserDto: CreateUserDto) {
-        const { email, username, password } = createUserDto;
+    // Using CreateUserDTO will automatically launch validation pipeline
+    async register(@Body() createUserDTO: CreateUserDTO) {
+        const { email, username, password } = createUserDTO;
 
         // Check if email is already used
+        // TODO: extract to class-validator custom validation
         if (await this.userService.findOneByEmail(email)) {
             throw new HttpException(
                 "Cette adresse email est déjà utilisée",
