@@ -1,0 +1,21 @@
+stages:
+    - build
+
+variables:
+    DOCKER_DRIVER: overlay2
+    HEROKU_PROCESS_TYPE: "web"
+    HEROKU_REGISTRY_URL: "registry.heroku.com"
+    HEROKU_APP_NAME: "easymove-api-production"
+
+Docker Build, Push:
+    image: docker:latest
+    services:
+        - docker:dind
+    stage: build
+    only:
+        - master
+    script:
+        - docker build -t $HEROKU_REGISTRY_URL/$HEROKU_APP_NAME/$HEROKU_PROCESS_TYPE .
+        - docker login -u=_ -p=$HEROKU_TOKEN $HEROKU_REGISTRY_URL
+        - docker push $HEROKU_REGISTRY_URL/$HEROKU_APP_NAME/$HEROKU_PROCESS_TYPE
+        - docker run --rm -e HEROKU_API_KEY=$HEROKU_TOKEN wingrunr21/alpine-heroku-cli container:release web --app $HEROKU_APP_NAME
