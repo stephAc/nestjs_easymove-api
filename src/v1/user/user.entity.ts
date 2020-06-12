@@ -31,6 +31,12 @@ export default class User {
     @Column({ type: "varchar", length: 100 })
     password: string;
 
+    @Column({ type: "varchar", length: 100, nullable: true })
+    image: string;
+
+    @Column({ type: "varchar", length: 100, nullable: true })
+    sexe: string;
+
     @Column({ type: "enum", enum: UserRole, default: UserRole.CLIENT })
     @ApiProperty({
         enum: UserRole,

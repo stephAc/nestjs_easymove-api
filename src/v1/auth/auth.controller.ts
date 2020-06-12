@@ -5,6 +5,8 @@ import {
     HttpException,
     HttpStatus,
     Post,
+    UseInterceptors,
+    UploadedFile,
 } from "@nestjs/common";
 import {
     ApiExtraModels,
@@ -19,6 +21,7 @@ import { UserService } from "../user/user.service";
 import { AuthService } from "./auth.service";
 import { LoginRequestDTO } from "./dto/login-request.dto";
 import { LoginResponseDTO } from "./dto/login-response.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @ApiTags("Authentification")
 @ApiExtraModels(LoginResponseDTO)
@@ -56,9 +59,11 @@ export class AuthController {
         status: HttpStatus.CREATED,
         description: "L'utilisateur a été ajouté",
     })
+    @UseInterceptors(FileInterceptor("image"))
     // Using CreateUserDTO will automatically launch validation pipeline
-    async register(@Body() createUserDTO: CreateUserDTO) {
+    async register(@Body() createUserDTO: CreateUserDTO, @UploadedFile() file) {
         const { email, username, password } = createUserDTO;
+        let response = {};
 
         // Check if email is already used
         // TODO: extract to class-validator custom validation
@@ -68,12 +73,20 @@ export class AuthController {
                 HttpStatus.BAD_REQUEST,
             );
         }
+        if (file) {
+            console.log(file);
+        }
 
         const user = new User();
         user.username = username;
         user.email = email;
         user.password = bcrypt.hashSync(password, 10);
-        await this.userService.save(user);
-        return { message: "L'utilisateur a été ajouté" };
+        if (file) {
+            user.image = file.filename;
+        }
+        let savedUser = await this.userService.save(user);
+        delete savedUser["password"];
+
+        return { message: "L'utilisateur a été ajouté", response, savedUser };
     }
 }

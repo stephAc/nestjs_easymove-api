@@ -5,6 +5,7 @@ import {
     HttpStatus,
     Param,
     UseGuards,
+    Res,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import {
@@ -47,5 +48,11 @@ export class UserController {
         }
 
         return user;
+    }
+
+    @Get("/image/:img")
+    @ApiOperation({ summary: "Retourne l'image d'un tuilisateur" })
+    public async userImage(@Param("img") image, @Res() res) {
+        return res.sendFile(image, { root: "./src/public/img/" });
     }
 }
