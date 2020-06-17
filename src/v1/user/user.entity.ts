@@ -6,7 +6,10 @@ import {
     Index,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
+    OneToOne,
+    JoinColumn,
 } from "typeorm";
+import Navigo from "../navigo/navigo.entity";
 
 export enum UserRole {
     ADMIN = 20,
@@ -43,6 +46,10 @@ export default class User {
         examples: [UserRole.CLIENT, UserRole.ADMIN],
     })
     role: UserRole;
+
+    @OneToOne(type => Navigo)
+    @JoinColumn()
+    navigo: Navigo;
 
     @CreateDateColumn({ name: "created_at" })
     @ApiProperty({ example: "2020-01-01T11:11:00.111Z" })
