@@ -40,6 +40,9 @@ export default class User {
     @Column({ type: "varchar", length: 100, nullable: true })
     sexe: string;
 
+    @Column({ type: "float", default: 0 })
+    wallet: number;
+
     @Column({ type: "enum", enum: UserRole, default: UserRole.CLIENT })
     @ApiProperty({
         enum: UserRole,
