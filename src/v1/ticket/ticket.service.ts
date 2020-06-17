@@ -9,4 +9,8 @@ export class TicketService {
         @InjectRepository(Ticket)
         private readonly ticketRepository: Repository<Ticket>,
     ) {}
+
+    public async save(ticket: Ticket): Promise<Ticket> {
+        return await this.ticketRepository.save(ticket);
+    }
 }

@@ -6,6 +6,10 @@ import {
     Param,
     UseGuards,
     Res,
+    Put,
+    Body,
+    UseInterceptors,
+    UploadedFile,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import {
@@ -14,9 +18,13 @@ import {
     ApiOperation,
     ApiResponse,
     ApiTags,
+    ApiBody,
 } from "@nestjs/swagger";
 import User from "./user.entity";
 import { UserService } from "./user.service";
+import { RequestUser } from "../user/user.decorator";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { UpdateUserDTO } from "../user/dto/update-user.dto";
 
 @ApiTags("Users")
 @ApiExtraModels(User)
@@ -54,5 +62,34 @@ export class UserController {
     @ApiOperation({ summary: "Retourne l'image d'un tuilisateur" })
     public async userImage(@Param("img") image, @Res() res) {
         return res.sendFile(image, { root: "./src/public/img/" });
+    }
+
+    @Put()
+    @ApiOperation({ summary: "Modifier un utilisateur" })
+    @UseInterceptors(FileInterceptor("image"))
+    public async update(
+        @RequestUser() user: User,
+        @Body() userData: UpdateUserDTO,
+        @UploadedFile() file,
+    ): Promise<any> {
+        if (file) {
+            userData.image = file.filename;
+        }
+        return await this.userService.update(user.id, userData);
+    }
+
+    @Put("add_wallet")
+    @ApiOperation({ summary: "Ajouter de l'argent à un utilisateur" })
+    @ApiBody({
+        schema: {
+            type: "number",
+        },
+    })
+    public async addToWallet(
+        @RequestUser() user: User,
+        @Body() money: any,
+    ): Promise<any> {
+        user.wallet += money.money;
+        return await this.userService.addToWallet(user);
     }
 }

@@ -16,6 +16,11 @@ export enum UserRole {
     CLIENT = 10,
 }
 
+export enum UserSexe {
+    MAN = "M",
+    WOMEN = "W",
+}
+
 @Entity({ name: "users" })
 export default class User {
     @PrimaryGeneratedColumn("uuid")

@@ -34,11 +34,10 @@ import { TicketService } from "./ticket.service";
 export class TicketController {
     public constructor(private readonly ticketService: TicketService) {}
 
-    @Post()
+    @Get("buy")
     @UseInterceptors(ClassSerializerInterceptor)
     @ApiOperation({
-        summary:
-            "Ajoute la liste des historiques passé en paramètre à l'utilisateur.",
+        summary: "Acheter un ticket",
     })
     @ApiResponse({
         status: HttpStatus.CREATED,
@@ -48,7 +47,20 @@ export class TicketController {
             },
         },
     })
+    @ApiResponse({
+        status: HttpStatus.PAYMENT_REQUIRED,
+        description: "Les fonds de l'utilisateur ne sont pas suffisant",
+    })
     public async create(@RequestUser() user: User): Promise<Ticket> {
-        return new Ticket();
+        if (user.wallet - TICKET_PRICE < 0) {
+            throw new HttpException(
+                "Les fonds de l'utilisateur ne sont pas suffisant",
+                HttpStatus.PAYMENT_REQUIRED,
+            );
+        }
+        const ticket = new Ticket();
+        ticket.user = user;
+
+        return await this.ticketService.save(ticket);
     }
 }

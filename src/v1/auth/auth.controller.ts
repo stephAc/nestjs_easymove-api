@@ -73,9 +73,6 @@ export class AuthController {
                 HttpStatus.BAD_REQUEST,
             );
         }
-        if (file) {
-            console.log(file);
-        }
 
         const user = new User();
         user.username = username;
