@@ -21,7 +21,7 @@ import {
     ApiBody,
     getSchemaPath,
 } from "@nestjs/swagger";
-import User from "../user/user.entity";
+import User, { UserRole } from "../user/user.entity";
 import { RequestUser } from "../user/user.decorator";
 import Ticket from "./ticket.entity";
 import { TICKET_PRICE } from "./ticket.constant";
@@ -33,6 +33,35 @@ import { TicketService } from "./ticket.service";
 @ApiBearerAuth()
 export class TicketController {
     public constructor(private readonly ticketService: TicketService) {}
+
+    @Get()
+    @UseInterceptors(ClassSerializerInterceptor)
+    @ApiOperation({
+        summary: "Récupérer tous les tickets",
+    })
+    @ApiResponse({
+        status: HttpStatus.UNAUTHORIZED,
+        description: "Droit d'admin requis",
+    })
+    public async index(@RequestUser() user: User): Promise<Ticket[]> {
+        if (user.role != UserRole.ADMIN) {
+            throw new HttpException(
+                "Droit d'admin requis",
+                HttpStatus.UNAUTHORIZED,
+            );
+        }
+
+        return await this.ticketService.index();
+    }
+
+    @Get("user")
+    @UseInterceptors(ClassSerializerInterceptor)
+    @ApiOperation({
+        summary: "Récupérer tous les tickets d'un utilisateur",
+    })
+    public async userTickets(@RequestUser() user: User): Promise<Ticket[]> {
+        return await this.ticketService.ticketByUser(user);
+    }
 
     @Get("buy")
     @UseInterceptors(ClassSerializerInterceptor)
