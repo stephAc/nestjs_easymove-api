@@ -5,6 +5,7 @@ import { AuthModule } from "./auth/auth.module";
 import { HistoryModule } from "./history/history.module";
 import { UserModule } from "./user/user.module";
 import { TicketModule } from "./ticket/ticket.module";
+import { NavigoModule } from "./navigo/navigo.module";
 
 const envFilePath = process.env.NODE_ENV === "test" ? ".env.test" : ".env";
 
@@ -16,6 +17,7 @@ const envFilePath = process.env.NODE_ENV === "test" ? ".env.test" : ".env";
         AuthModule,
         HistoryModule,
         TicketModule,
+        NavigoModule,
     ],
 })
 export class AppModule {}
