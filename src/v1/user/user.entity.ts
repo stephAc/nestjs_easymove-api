@@ -8,8 +8,10 @@ import {
     UpdateDateColumn,
     OneToOne,
     JoinColumn,
+    OneToMany,
 } from "typeorm";
 import Navigo from "../navigo/navigo.entity";
+import Ticket from "../ticket/ticket.entity";
 
 export enum UserRole {
     ADMIN = 20,
@@ -45,7 +47,7 @@ export default class User {
     @Column({ type: "varchar", length: 100, nullable: true })
     sexe: string;
 
-    @Column({ type: "float", default: 0 })
+    @Column({ type: "float", default: 0.0 })
     wallet: number;
 
     @Column({ type: "enum", enum: UserRole, default: UserRole.CLIENT })
@@ -58,6 +60,12 @@ export default class User {
     @OneToOne(type => Navigo)
     @JoinColumn()
     navigo: Navigo;
+
+    @OneToMany(
+        type => Ticket,
+        ticket => ticket.user,
+    )
+    tickets: Ticket[];
 
     @CreateDateColumn({ name: "created_at" })
     @ApiProperty({ example: "2020-01-01T11:11:00.111Z" })

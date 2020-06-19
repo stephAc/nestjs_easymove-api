@@ -34,7 +34,7 @@ export class UserService {
         return await this.userRepository.update(id, userData);
     }
 
-    public async addToWallet(user: User): Promise<User> {
+    public async wallet(user: User): Promise<User> {
         return await this.userRepository.save(user);
     }
 

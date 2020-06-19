@@ -85,11 +85,47 @@ export class UserController {
             type: "number",
         },
     })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "The money can't be negative",
+    })
     public async addToWallet(
         @RequestUser() user: User,
         @Body() money: any,
     ): Promise<any> {
+        if (money.money <= 0) {
+            throw new HttpException(
+                "The money can't be negative",
+                HttpStatus.FORBIDDEN,
+            );
+        }
+
         user.wallet += money.money;
-        return await this.userService.addToWallet(user);
+        return await this.userService.wallet(user);
+    }
+
+    @Put("remove_wallet")
+    @ApiOperation({ summary: "Retirer de l'argent à un utilisateur" })
+    @ApiBody({
+        schema: {
+            type: "number",
+        },
+    })
+    @ApiResponse({
+        status: HttpStatus.FORBIDDEN,
+        description: "The money can't be negative",
+    })
+    public async removeFromWallet(
+        @RequestUser() user: User,
+        @Body() money: any,
+    ): Promise<any> {
+        if (money.money <= 0) {
+            throw new HttpException(
+                "The money can't be negative.",
+                HttpStatus.FORBIDDEN,
+            );
+        }
+        user.wallet -= money.money;
+        return await this.userService.wallet(user);
     }
 }

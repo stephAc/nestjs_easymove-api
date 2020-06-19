@@ -4,6 +4,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AuthModule } from "./auth/auth.module";
 import { HistoryModule } from "./history/history.module";
 import { UserModule } from "./user/user.module";
+import { TicketModule } from "./ticket/ticket.module";
 
 const envFilePath = process.env.NODE_ENV === "test" ? ".env.test" : ".env";
 
@@ -14,6 +15,7 @@ const envFilePath = process.env.NODE_ENV === "test" ? ".env.test" : ".env";
         UserModule,
         AuthModule,
         HistoryModule,
+        TicketModule,
     ],
 })
 export class AppModule {}
