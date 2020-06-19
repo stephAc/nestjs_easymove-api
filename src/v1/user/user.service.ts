@@ -20,7 +20,10 @@ export class UserService {
     }
 
     public async findOneById(id: string): Promise<User | undefined> {
-        return await this.userRepository.findOne(id);
+        return await this.userRepository.findOne({
+            where: { id },
+            relations: ["tickets"],
+        });
     }
 
     public async save(user: User): Promise<User> {
