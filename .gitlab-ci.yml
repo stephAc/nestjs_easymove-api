@@ -13,7 +13,7 @@ Docker Build, Push:
         - docker:dind
     stage: build
     only:
-        - master
+        - develop
     script:
         - docker build -t $HEROKU_REGISTRY_URL/$HEROKU_APP_NAME/$HEROKU_PROCESS_TYPE .
         - docker login -u=_ -p=$HEROKU_TOKEN $HEROKU_REGISTRY_URL
