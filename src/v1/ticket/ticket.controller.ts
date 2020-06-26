@@ -147,7 +147,6 @@ export class TicketController {
                 HttpStatus.NOT_ACCEPTABLE,
             );
         }
-        console.log(ticket);
         if (ticket.user.id !== user.id) {
             throw new HttpException(
                 "This ticket  doesn't belongs to this user",

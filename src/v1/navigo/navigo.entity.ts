@@ -2,10 +2,10 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
 export enum NavigoFlatRate {
-    WEEK = "week",
-    MONTHLY = "monthly",
-    ANNUAL = "annual",
-    NONE = "none",
+    WEEK = "WEEK",
+    MONTH = "MONTH",
+    YEAR = "YEAR",
+    NONE = "NONE",
 }
 
 @Entity({ name: "navigo" })
@@ -21,12 +21,7 @@ export default class Navigo {
     })
     @ApiProperty({
         enum: NavigoFlatRate,
-        examples: [
-            NavigoFlatRate.ANNUAL,
-            NavigoFlatRate.MONTHLY,
-            NavigoFlatRate.ANNUAL,
-            NavigoFlatRate.NONE,
-        ],
+        example: NavigoFlatRate,
     })
     flatRate: NavigoFlatRate;
 

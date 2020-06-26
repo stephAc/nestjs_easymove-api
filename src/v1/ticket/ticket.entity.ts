@@ -30,7 +30,7 @@ export default class Ticket {
     @ManyToOne(
         type => User,
         user => user.tickets,
-        { nullable: false, onDelete: "CASCADE" },
+        { nullable: false, onUpdate: "CASCADE", onDelete: "CASCADE" },
     )
     @Transform(user => user.id)
     @ApiProperty({

@@ -10,6 +10,7 @@ import {
     Body,
     UseInterceptors,
     UploadedFile,
+    Delete,
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import {
@@ -19,6 +20,7 @@ import {
     ApiResponse,
     ApiTags,
     ApiBody,
+    ApiParam,
 } from "@nestjs/swagger";
 import User from "./user.entity";
 import { UserService } from "./user.service";
@@ -127,5 +129,14 @@ export class UserController {
         }
         user.wallet -= money.money;
         return await this.userService.wallet(user);
+    }
+    @Delete(":userID")
+    @ApiOperation({ summary: "Supprimer un utilisateur" })
+    @ApiParam({
+        name: "UserID",
+        example: "fe7bb967-de22-44bf-b15f-5db184e9529c",
+    })
+    public async delete(@Param("userID") userID): Promise<Object> {
+        return await this.userService.delete(userID);
     }
 }
