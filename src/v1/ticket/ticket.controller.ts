@@ -30,6 +30,10 @@ import Ticket from "./ticket.entity";
 import { TICKET_PRICE } from "./ticket.constant";
 import { TicketService } from "./ticket.service";
 import { UserService } from "../user/user.service";
+import HistoryPay, {
+    HistoryPayType,
+} from "../historyPayment/historyPay.entity";
+import { HistoryPayService } from "../historyPayment/historyPay.service";
 
 @Controller("ticket")
 @UseGuards(AuthGuard("jwt"))
@@ -39,6 +43,7 @@ export class TicketController {
     public constructor(
         private readonly ticketService: TicketService,
         private readonly userService: UserService,
+        private readonly historyPayService: HistoryPayService,
     ) {}
 
     @Get()
@@ -59,6 +64,15 @@ export class TicketController {
         }
 
         return await this.ticketService.index();
+    }
+
+    @Get("rate")
+    @UseInterceptors(ClassSerializerInterceptor)
+    @ApiOperation({
+        summary: "Récupérer le prix du ticket",
+    })
+    public async rate() {
+        return TICKET_PRICE;
     }
 
     @Get("user")
@@ -102,6 +116,13 @@ export class TicketController {
         this.userService.wallet(user);
 
         const newTicket = await this.ticketService.save(ticket);
+
+        let historyPay = new HistoryPay();
+        historyPay.price = TICKET_PRICE.toString();
+        historyPay.user = user;
+        historyPay.action = HistoryPayType.TICKET;
+        await this.historyPayService.save(historyPay);
+
         delete user.password;
 
         return { "ticket": newTicket, user };
@@ -141,7 +162,7 @@ export class TicketController {
                 HttpStatus.NOT_FOUND,
             );
         }
-        if (!!ticket.valid) {
+        if (!ticket.valid) {
             throw new HttpException(
                 "This ticket has already been used",
                 HttpStatus.NOT_ACCEPTABLE,
@@ -156,6 +177,12 @@ export class TicketController {
         user.wallet += ticket.rate;
         this.userService.wallet(user);
         let deletedTicket = await this.ticketService.delete(ticket);
+
+        let historyPay = new HistoryPay();
+        historyPay.price = ticket.rate.toString();
+        historyPay.user = user;
+        historyPay.action = HistoryPayType.REFUND;
+        await this.historyPayService.save(historyPay);
 
         delete user.password;
 

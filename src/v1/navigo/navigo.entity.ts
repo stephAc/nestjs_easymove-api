@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, OneToOne } from "typeorm";
+import User from "../user/user.entity";
 
 export enum NavigoFlatRate {
     WEEK = "WEEK",
@@ -37,4 +38,10 @@ export default class Navigo {
     @Column({ name: "finishOn", default: () => "NOW()" })
     @ApiProperty({ example: "2020-01-01T11:11:00.111Z" })
     finishOn: Date;
+
+    @OneToOne(
+        type => User,
+        user => user.navigo,
+    ) // specify inverse side as a second parameter
+    user: User;
 }

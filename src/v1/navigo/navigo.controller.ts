@@ -6,26 +6,29 @@ import {
     UseGuards,
     Res,
     Param,
+    UseInterceptors,
+    ClassSerializerInterceptor,
 } from "@nestjs/common";
 
 import { AuthGuard } from "@nestjs/passport";
 import {
     ApiBearerAuth,
-    ApiExtraModels,
     ApiOperation,
     ApiResponse,
     ApiTags,
-    ApiBody,
-    getSchemaPath,
     ApiParam,
 } from "@nestjs/swagger";
-import User, { UserRole } from "../user/user.entity";
+import User from "../user/user.entity";
 import { RequestUser } from "../user/user.decorator";
 import Navigo from "./navigo.entity";
 import { NavigoService } from "./navigo.service";
 import { UserService } from "../user/user.service";
 import { SUBSCRIPTION } from "./navigo.constant";
 import { NavigoFlatRate } from "../navigo/navigo.entity";
+import HistoryPay, {
+    HistoryPayType,
+} from "../historyPayment/historyPay.entity";
+import { HistoryPayService } from "../historyPayment/historyPay.service";
 @Controller("navigo")
 @UseGuards(AuthGuard("jwt"))
 @ApiTags("Navigo")
@@ -34,6 +37,7 @@ export class NavigoController {
     public constructor(
         private readonly navigoService: NavigoService,
         private readonly userService: UserService,
+        private readonly historyPayService: HistoryPayService,
     ) {}
 
     @ApiOperation({
@@ -104,9 +108,24 @@ export class NavigoController {
         console.log(user);
         const updatedUser = await this.userService.updateNavigo(user);
 
+        let historyPay = new HistoryPay();
+        historyPay.price = "-" + SUBSCRIPTION[flatRate];
+        historyPay.user = user;
+        historyPay.action = HistoryPayType.PASS;
+        await this.historyPayService.save(historyPay);
+
         return {
             data: { updatedUser, navigo },
             message: "User new wallet and navigo",
         };
     }
+
+    // @Get("user")
+    // @UseInterceptors(ClassSerializerInterceptor)
+    // @ApiOperation({
+    //     summary: "Récupérer tous les tickets d'un utilisateur",
+    // })
+    // public async userTickets(@RequestUser() user: User): Promise<Navigo> {
+    //     return await this.navigoService.find(user);
+    // }
 }

@@ -27,6 +27,10 @@ import { UserService } from "./user.service";
 import { RequestUser } from "../user/user.decorator";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { UpdateUserDTO } from "../user/dto/update-user.dto";
+import HistoryPay, {
+    HistoryPayType,
+} from "../historyPayment/historyPay.entity";
+import { HistoryPayService } from "../historyPayment/historyPay.service";
 
 @ApiTags("Users")
 @ApiExtraModels(User)
@@ -34,7 +38,10 @@ import { UpdateUserDTO } from "../user/dto/update-user.dto";
 @Controller("users")
 @UseGuards(AuthGuard("jwt"))
 export class UserController {
-    public constructor(private readonly userService: UserService) {}
+    public constructor(
+        private readonly userService: UserService,
+        private readonly historyPayService: HistoryPayService,
+    ) {}
 
     @Get()
     @ApiOperation({ summary: "Liste des utilisateurs." })
@@ -102,8 +109,15 @@ export class UserController {
             );
         }
 
-        user.wallet += money.money;
-        return await this.userService.wallet(user);
+        let historyPay = new HistoryPay();
+        historyPay.price = money.money;
+        historyPay.user = user;
+        historyPay.action = HistoryPayType.DEPOSIT;
+
+        user.wallet += parseInt(money.money, 10);
+        const updatedUser = await this.userService.wallet(user);
+        await this.historyPayService.save(historyPay);
+        return updatedUser;
     }
 
     @Put("remove_wallet")
@@ -127,8 +141,17 @@ export class UserController {
                 HttpStatus.FORBIDDEN,
             );
         }
+
+        let historyPay = new HistoryPay();
+        historyPay.price = "-" + money.money;
+        historyPay.user = user;
+        historyPay.action = HistoryPayType.REFUND;
+
         user.wallet -= money.money;
-        return await this.userService.wallet(user);
+        const updatedUser = await this.userService.wallet(user);
+        await this.historyPayService.save(historyPay);
+
+        return updatedUser;
     }
     @Delete(":userID")
     @ApiOperation({ summary: "Supprimer un utilisateur" })

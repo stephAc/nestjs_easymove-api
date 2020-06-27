@@ -6,6 +6,7 @@ import { UserService } from "./user.service";
 import { MulterModule } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { editFileName, imageFileFilter } from "../middleware/file.middleware";
+import { HistoryPayModule } from "../historyPayment/historyPay.module";
 
 @Module({
     imports: [
@@ -17,6 +18,7 @@ import { editFileName, imageFileFilter } from "../middleware/file.middleware";
             }),
             fileFilter: imageFileFilter,
         }),
+        HistoryPayModule,
     ],
     controllers: [UserController],
     providers: [UserService],
