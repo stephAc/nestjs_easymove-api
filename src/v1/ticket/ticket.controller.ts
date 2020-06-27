@@ -141,7 +141,7 @@ export class TicketController {
                 HttpStatus.NOT_FOUND,
             );
         }
-        if (!ticket.valid) {
+        if (!!ticket.valid) {
             throw new HttpException(
                 "This ticket has already been used",
                 HttpStatus.NOT_ACCEPTABLE,
@@ -190,13 +190,14 @@ export class TicketController {
             throw new HttpException("Wrong setting", HttpStatus.BAD_REQUEST);
         }
         let ticket = await this.ticketService.findOneById(ticketID);
+        console.log(ticket);
         if (!ticket) {
             throw new HttpException(
                 "Ticket doesn't exist",
                 HttpStatus.NOT_FOUND,
             );
         }
-        if (!ticket.valid) {
+        if (!!ticket.valid) {
             throw new HttpException(
                 "This ticket has already been used",
                 HttpStatus.NOT_ACCEPTABLE,
@@ -210,9 +211,8 @@ export class TicketController {
         }
         ticket.valid = "false";
 
-        const updatedTicket = this.ticketService.update(ticket);
-        ticket = await this.ticketService.findOneById(ticketID);
+        const updatedTicket = await this.ticketService.update(ticket);
 
-        return { ticket };
+        return { "ticket": updatedTicket };
     }
 }
