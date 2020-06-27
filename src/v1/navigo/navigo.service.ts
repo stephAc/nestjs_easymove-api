@@ -10,4 +10,8 @@ export class NavigoService {
         @InjectRepository(Navigo)
         private readonly navigoRepository: Repository<Navigo>,
     ) {}
+
+    public async create(navigo: Navigo): Promise<Navigo> {
+        return await this.navigoRepository.save(navigo);
+    }
 }

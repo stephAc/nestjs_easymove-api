@@ -103,8 +103,10 @@ export class NavigoController {
                 navigo.finishOn.setFullYear(navigo.finishOn.getFullYear() + 1);
                 break;
         }
+        const savedNav = await this.navigoService.create(navigo);
+
         user.wallet -= SUBSCRIPTION[flatRate];
-        user.navigo = navigo;
+        user.navigo = savedNav;
         console.log(user);
         const updatedUser = await this.userService.updateNavigo(user);
 
@@ -119,13 +121,4 @@ export class NavigoController {
             message: "User new wallet and navigo",
         };
     }
-
-    // @Get("user")
-    // @UseInterceptors(ClassSerializerInterceptor)
-    // @ApiOperation({
-    //     summary: "Récupérer tous les tickets d'un utilisateur",
-    // })
-    // public async userTickets(@RequestUser() user: User): Promise<Navigo> {
-    //     return await this.navigoService.find(user);
-    // }
 }
