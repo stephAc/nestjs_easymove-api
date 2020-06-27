@@ -30,6 +30,10 @@ export class TicketService {
         return await this.ticketRepository.save(ticket);
     }
 
+    public async update(ticket: Ticket): Promise<Ticket> {
+        return await this.ticketRepository.save(ticket);
+    }
+
     public async delete(ticket: Ticket): Promise<any> {
         return await this.ticketRepository.remove(ticket);
     }

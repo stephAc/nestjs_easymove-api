@@ -10,6 +10,7 @@ import {
     ClassSerializerInterceptor,
     UseInterceptors,
     Delete,
+    Put,
 } from "@nestjs/common";
 
 import { AuthGuard } from "@nestjs/passport";
@@ -130,7 +131,6 @@ export class TicketController {
         @RequestUser() user: User,
         @Param("ticketID") ticketID,
     ): Promise<Object> {
-        console.log(ticketID);
         if (!ticketID) {
             throw new HttpException("Wrong setting", HttpStatus.BAD_REQUEST);
         }
@@ -160,5 +160,59 @@ export class TicketController {
         delete user.password;
 
         return { "ticket": deletedTicket, user };
+    }
+
+    @Put("use_ticket/:ticketID")
+    @ApiOperation({
+        summary: "Utiliser un ticket",
+    })
+    @ApiResponse({
+        status: HttpStatus.NOT_ACCEPTABLE,
+        description: "This ticket has already been used",
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: "Wrong setting",
+    })
+    @ApiResponse({
+        status: HttpStatus.BAD_REQUEST,
+        description: "This ticket doesn't belongs to this user",
+    })
+    @ApiParam({
+        name: "ticketID",
+        example: "fe7bb967-de22-44bf-b15f-5db184e9529c",
+    })
+    public async useTicket(
+        @RequestUser() user: User,
+        @Param("ticketID") ticketID,
+    ) {
+        if (!ticketID) {
+            throw new HttpException("Wrong setting", HttpStatus.BAD_REQUEST);
+        }
+        let ticket = await this.ticketService.findOneById(ticketID);
+        if (!ticket) {
+            throw new HttpException(
+                "Ticket doesn't exist",
+                HttpStatus.NOT_FOUND,
+            );
+        }
+        if (!ticket.valid) {
+            throw new HttpException(
+                "This ticket has already been used",
+                HttpStatus.NOT_ACCEPTABLE,
+            );
+        }
+        if (ticket.user.id !== user.id) {
+            throw new HttpException(
+                "This ticket  doesn't belongs to this user",
+                HttpStatus.BAD_REQUEST,
+            );
+        }
+        ticket.valid = "false";
+
+        const updatedTicket = this.ticketService.update(ticket);
+        ticket = await this.ticketService.findOneById(ticketID);
+
+        return { ticket };
     }
 }
