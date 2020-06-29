@@ -145,7 +145,7 @@ export class UserController {
         let historyPay = new HistoryPay();
         historyPay.price = "-" + money.money;
         historyPay.user = user;
-        historyPay.action = HistoryPayType.REFUND;
+        historyPay.action = HistoryPayType.WITHDRAW;
 
         user.wallet -= money.money;
         const updatedUser = await this.userService.wallet(user);

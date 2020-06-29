@@ -118,7 +118,7 @@ export class TicketController {
         const newTicket = await this.ticketService.save(ticket);
 
         let historyPay = new HistoryPay();
-        historyPay.price = TICKET_PRICE.toString();
+        historyPay.price = "-" + TICKET_PRICE.toString();
         historyPay.user = user;
         historyPay.action = HistoryPayType.TICKET;
         await this.historyPayService.save(historyPay);
